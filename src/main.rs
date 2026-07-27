@@ -7,7 +7,7 @@ const HEIGHT: usize = 32;
 fn main() {
     let mut cpu = CPU::new();
 
-    cpu.load_rom("test-rom/2-ibm-logo.ch8").expect("Failed to read ROM file");
+    cpu.load_rom("game-rom/1dcell.ch8").expect("Failed to read ROM file");
 
     let mut window = Window::new(
         "Chip-8 Emulator",
@@ -22,12 +22,17 @@ fn main() {
     });
 
     // frame limit 60 FPS
-    window.set_target_fps(60);
+    window.set_target_fps(120);
 
     while window.is_open() && !window.is_key_down(Key::Escape) {
-        for _ in 0..10 {
+        cpu.update_keypad(&window);
+
+        for _ in 0..100 {
             cpu.step();
         }
+
+        cpu.delay_timer = cpu.delay_timer.saturating_sub(1);
+        cpu.sound_timer = cpu.sound_timer.saturating_sub(1);
         
         window.update_with_buffer(&cpu.get_display_buffer(), WIDTH, HEIGHT).expect("Failed to update window.");
     }
